@@ -104,6 +104,10 @@ $(window).on("load", function() {
 
   overlay = new D3Overlay();
 
+  //redraw after some events so the dots don't get out of sync
+  map.addListener('drag', function() {overlay.draw()});
+  map.addListener('zoom_changed', function() {overlay.draw()});
+
   updateSlider();
 });
 
