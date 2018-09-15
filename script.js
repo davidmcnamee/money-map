@@ -5,3 +5,11 @@ function initMap() {
     zoom: 10
   });
 }
+
+var slider = document.getElementById('myRange');
+var counter = document.getElementById('counter');
+counter.innerHTML = slider.value;
+
+slider.oninput = function() {
+    counter.innerHTML = this.value;
+}
