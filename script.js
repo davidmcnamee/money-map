@@ -10,27 +10,6 @@ function transform(d) {
       .style("top", (d.y - padding) + "px");
 }
 
-function ping(root) {
-  root.append('circle')
-      .attr({
-        'cx': "50%",
-        'cy': "50%",
-        'r': 1,
-        'stroke': '#369',
-        'stroke-opacity': 1,
-        'stroke-width': '3px'
-      })
-      .transition()
-        .duration(3000)
-        .attr({
-          'fill': 'none',
-          'r': 80,
-          'stroke': '#369',
-          'stroke-width': '0px',
-          'stroke-opacity': 0
-        })
-};
-
 D3Overlay.prototype = new google.maps.OverlayView();
 
 function D3Overlay() {
@@ -56,6 +35,8 @@ function D3Overlay() {
           .data(transaction_data[this._dateString])
           .each(transform) // update existing markers
 
+      old_transactions = transaction_join.exit().remove();
+
       new_transactions = transaction_join.enter().append("svg")
           .each(transform)
           .attr("class", "transaction")
@@ -66,7 +47,6 @@ function D3Overlay() {
           .attr("cx", padding)
           .attr("cy", padding);
       
-      ping(new_transactions);
   }
 
   D3Overlay.prototype.onRemove = function() {
