@@ -16,6 +16,16 @@ html, body {
   padding: 0;
 }
 
+.transactions svg {
+    position: absolute;
+}
+
+.transactions circle {
+    fill: brown;
+    stroke: black;
+    stroke-width: 1.5px;
+  }
+
 #counter {
   font-size: 24px;
   position: absolute;
