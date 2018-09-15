@@ -3,8 +3,18 @@
 #map {
   height: 50%;
   width: 50%;
-  margin: auto;
 }
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* Optional: Makes the sample page fill the window. */
 html, body {
   height: 100%;
