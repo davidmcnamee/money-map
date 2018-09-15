@@ -29,12 +29,14 @@ html, body {
 #counter {
   font-size: 24px;
   position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 0px;
 }
 
 .slider {
     -webkit-appearance: none;
-    width: 100%;
+    width: 90%;
     height: 25px;
     background: #d3d3d3;
     outline: none;
@@ -42,6 +44,8 @@ html, body {
     -webkit-transition: .2s;
     transition: opacity .2s;
     position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     bottom: 0px;
 }
 
