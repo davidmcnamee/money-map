@@ -10,11 +10,21 @@ function transform(d) {
       .style("top", (d.y - padding) + "px");
 }
 
+function createTooltip(d, i) {
+  this.tip = new Tooltip(this, {
+    closeOnClickOutside: true,
+    trigger: "manual"
+  })
+  this.tip.textContent = "HAIL SATAN";
+  this.tip.updateTitleContent("HAIL SATAN");
+}
+
 D3Overlay.prototype = new google.maps.OverlayView();
 
 function D3Overlay() {
 
   this._div = null;
+  this._tooltip = null;
   this._dateString = null;
 
   this.setMap(map);
@@ -22,6 +32,11 @@ function D3Overlay() {
   D3Overlay.prototype.onAdd = function() {
     this._div = d3.select(this.getPanes().overlayMouseTarget).append("div")
         .attr("class", "transactions");
+
+    this._tooltip = d3.select("body")
+      .append("div")
+    	.attr("class", "tooltip")
+    	.style("opacity", 0);
   }
 
   D3Overlay.prototype.draw = function() {
@@ -41,12 +56,29 @@ function D3Overlay() {
           .each(transform)
           .attr("class", "transaction")
 
+      var div = $(".transact-popover");
+
+      var tooltip = this._tooltip;
+
       // Add a circle.
       new_transactions.append("circle")
-          .attr("r", 6)
-          .attr("cx", padding)
-          .attr("cy", padding);
-      
+        .attr("r", 7)
+        .attr("cx", padding)
+        .attr("cy", padding)
+        .on("mouseover", function(d) {
+          tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+          tooltip.html("fisherman")
+            .style("left", (d3.event.pageX + 5) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+      	  })
+          .on("mouseout", function(d) {
+            tooltip.transition()
+              .duration(200)
+              .style("opacity", 0);
+          });
+        
   }
 
   D3Overlay.prototype.onRemove = function() {
@@ -68,25 +100,30 @@ function sliderToMoment(value) {
   return date;
 }
 
-var slider = document.getElementById('myRange');
-slider.max = offset
-slider.min = 0
-slider.value = slider.min;
+var slider;
 
 function updateSlider() {
-  moment = sliderToMoment(slider.value);
+  moment = sliderToMoment(slider.val());
   $("#counter").text(moment.format("YYYY-MM-DD HH:00"));
   dateString = moment.format("YYYY-MM-DDTHH");
   overlay._dateString = dateString;
   overlay.draw();
 }
 
-slider.oninput = function() {
-  updateSlider();
-}
-
 $(window).on("load", function() {
   
+  slider = $("#myRange");
+  slider.attr({
+    min: 0,
+    max: offset,
+    value: 0
+  });
+
+  slider.on("input", function() {updateSlider()});
+  
+  
+  
+
   for (var i = 3; i < 11; i++) {
     monthString = i;
     if (i < 10) {
