@@ -75,3 +75,12 @@ html, body {
     background: #4CAF50;
     cursor: pointer;
 }
+
+.transact-popover {
+    width: 10%;
+    display: none;
+}
+
+.face-img {
+    max-width: 100%;
+}
