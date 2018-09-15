@@ -21,10 +21,17 @@ html, body {
 }
 
 .transactions circle {
-    fill: brown;
-    stroke: black;
+    fill: #007001;
+    stroke: #ffffff;
     stroke-width: 1.5px;
   }
+
+.ping {
+    fill: none;
+    stroke: #007001;
+    stroke-width: 0.5px;
+
+}
 
 #counter {
   font-size: 24px;
