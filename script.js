@@ -25,8 +25,8 @@ d3.json("/data/td_transaction_2018-04.json")
         var projection = this.getProjection(),
           padding = 10;
         var radius = 5;
-  
-  
+
+
         var marker = layer.selectAll("svg")
           .data(d3.entries(data))
           .each(transform)
@@ -54,17 +54,17 @@ d3.json("/data/td_transaction_2018-04.json")
   }, printError);
 
 function getTimeString(ms) {
-  return new Date(ms).toDateString();
+  return new Date(+ms).toDateString();
 }
 
 var slider = document.getElementById('myRange');
 slider.max = new Date().getTime();
-slider.min = 1262304000000;
+slider.min = 1262304000000; //the timestamp for 2010
 slider.value = slider.min;
 
 var counter = document.getElementById('counter');
 counter.innerHTML = getTimeString(slider.value);
 
 slider.oninput = function() {
-    counter.innerHTML = this.value;
+    counter.innerHTML = getTimeString(this.value);
 }
