@@ -6,7 +6,7 @@ function initMap() {
   });
 }
 
-function getTimeString(var ms) {
+function getTimeString(ms) {
   return new Date(ms).toDateString();
 }
 
