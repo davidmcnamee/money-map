@@ -6,9 +6,17 @@ function initMap() {
   });
 }
 
+function getTimeString(var ms) {
+  return new Date(ms).toDateString();
+}
+
 var slider = document.getElementById('myRange');
+slider.max = new Date().getTime();
+slider.min = 1262304000000;
+slider.value = slider.min;
+
 var counter = document.getElementById('counter');
-counter.innerHTML = slider.value;
+counter.innerHTML = getTimeString(slider.value);
 
 slider.oninput = function() {
     counter.innerHTML = this.value;
