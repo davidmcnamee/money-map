@@ -1,18 +1,11 @@
 /* Always set the map height explicitly to define the size of the div
  * element that contains the map. */
 #map {
-  height: 50%;
-  width: 50%;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  margin: 0;
-  padding: 0;
+  height: 75%;
+  width: 75%;
+  position: absolute;
+  left: 12.5%;
+  top: 12.5%;
 }
 
 /* Optional: Makes the sample page fill the window. */
