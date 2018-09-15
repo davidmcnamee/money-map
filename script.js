@@ -1,75 +1,77 @@
 var transaction_data = {};
-overlay = null;
+var map;
+var overlay;
 
-$(window).on("load", function() {
-  
-  for (var i = 3; i < 11; i++) {
-    monthString = i;
-    if (i < 10) {
-      monthString = "0" + monthString;
-    }
-    $.getJSON("data/td_transaction_2018-" + monthString + ".json", function(data) {
-      $.extend(transaction_data, data);
-    });
-  }
- 
-  map = new google.maps.Map(d3.select("#map").node(), {
-    center: {lat: 43.658419, lng: -79.38454795},
-    zoom: 10
-  });
+function transform(d) {
+  d = new google.maps.LatLng(d.lat_long[0], d.lat_long[1]);
+  d = overlay.getProjection().fromLatLngToDivPixel(d);
+  return d3.select(this)
+      .style("left", (d.x - padding) + "px")
+      .style("top", (d.y - padding) + "px");
+}
 
-  updateSlider();
-});
+function ping(root) {
+  root.append('circle')
+      .attr({
+        'cx': "50%",
+        'cy': "50%",
+        'r': 1,
+        'stroke': '#369',
+        'stroke-opacity': 1,
+        'stroke-width': '3px'
+      })
+      .transition()
+        .duration(3000)
+        .attr({
+          'fill': 'none',
+          'r': 80,
+          'stroke': '#369',
+          'stroke-width': '0px',
+          'stroke-opacity': 0
+        })
+};
 
-function d3_update(dateString) {
+D3Overlay.prototype = new google.maps.OverlayView();
 
-  if (!(dateString in transaction_data)) {
-    return;
-  }
+function D3Overlay() {
 
-  if (overlay != null) {
-    overlay.setMap(null);
-  }
-  
-  overlay = new google.maps.OverlayView();
+  this._div = null;
+  this._dateString = null;
 
-  overlay.onAdd = function() {
-    var layer = d3.select(this.getPanes().overlayLayer).append("div")
+  this.setMap(map);
+
+  D3Overlay.prototype.onAdd = function() {
+    this._div = d3.select(this.getPanes().overlayMouseTarget).append("div")
         .attr("class", "transactions");
+  }
 
-    overlay.onRemove = function() {
-      layer.remove();
-    }
+  D3Overlay.prototype.draw = function() {
+      if (this._dateString == null || !(this._dateString in transaction_data)) {
+        return;
+      }
+      
+      padding = 10;
 
-    overlay.draw = function() {
-      var projection = this.getProjection(),
-          padding = 10;
-
-      var marker = layer.selectAll("svg")
-          .data(transaction_data[dateString])
+      var transaction_join = this._div.selectAll("svg")
+          .data(transaction_data[this._dateString])
           .each(transform) // update existing markers
-        .enter().append("svg")
+
+      new_transactions = transaction_join.enter().append("svg")
           .each(transform)
-          .attr("class", "transaction");
+          .attr("class", "transaction")
 
       // Add a circle.
-      marker.append("circle")
-          .attr("r", 4.5)
+      new_transactions.append("circle")
+          .attr("r", 6)
           .attr("cx", padding)
           .attr("cy", padding);
+      
+      ping(new_transactions);
+  }
 
-      function transform(d) {
-        d = new google.maps.LatLng(d.lat_long[0], d.lat_long[1]);
-        d = projection.fromLatLngToDivPixel(d);
-        return d3.select(this)
-            .style("left", (d.x - padding) + "px")
-            .style("top", (d.y - padding) + "px");
-      }
-    };
-  };
-
-  // Bind our overlay to the map…
-  overlay.setMap(map);
+  D3Overlay.prototype.onRemove = function() {
+    this._div.remove();
+  }
 }
 
 var beginDate = getMoment("2018-03-02T01");
@@ -93,12 +95,35 @@ slider.value = slider.min;
 
 function updateSlider() {
   moment = sliderToMoment(slider.value);
-  $("#counter").innerHTML = moment.format("YYYY-MM-DD HH:00");
+  $("#counter").text(moment.format("YYYY-MM-DD HH:00"));
   dateString = moment.format("YYYY-MM-DDTHH");
-  d3_update(dateString);
+  overlay._dateString = dateString;
+  overlay.draw();
 }
 
 slider.oninput = function() {
   updateSlider();
 }
+
+$(window).on("load", function() {
+  
+  for (var i = 3; i < 11; i++) {
+    monthString = i;
+    if (i < 10) {
+      monthString = "0" + monthString;
+    }
+    $.getJSON("data/td_transaction_2018-" + monthString + ".json", function(data) {
+      $.extend(transaction_data, data);
+    });
+  }
+ 
+  map = new google.maps.Map(d3.select("#map").node(), {
+    center: {lat: 43.658419, lng: -79.38454795},
+    zoom: 12
+  });
+
+  overlay = new D3Overlay();
+
+  updateSlider();
+});
 
