@@ -3,11 +3,6 @@ var account_data = {};
 var map;
 var overlay;
 
-$("#myRange").on('scroll', function(){
-  console.log("scrolling");
-   $("#myRange").val($("#myRange").value + 3600000);
-});
-
 function transform(d) {
   d = new google.maps.LatLng(d.lat_long[0], d.lat_long[1]);
   d = overlay.getProjection().fromLatLngToDivPixel(d);
@@ -22,12 +17,69 @@ function genToolTipHTML(d) {
     <img class="face-img" src="generic-face.png">
     <p class="tooltip-info">${cust['first_name']} ${cust['surname']}</p>
     <p class="tooltip-info">Age: ${cust['age']}</p>
-    <p class="tooltip-info">Income: ONE MILLION DOLLARS</p>
+    <p class="tooltip-info">Income: ${cust['income']}</p>
     <p class="tooltip-info">Merchant: ${d['merch_name']}</p>
     <p class="tooltip-info">Amount: \$${d['amount']}</p>
   </div>`
 
   return template;
+}
+
+function filterIncome(income) {
+  selectValue = $("#filter-income").val();
+  if (selectValue == "none") {
+    return true;
+  }
+  if (selectValue == "0-25" && income >= 0 && income <= 25,000) {
+    return true;
+  }
+  if (selectValue == "25-50" && income > 25,000 && income <= 50,000) {
+    return true;
+  }
+  if (selectValue == "50-75" && income > 50,000 && income <= 75,000) {
+    return true;
+  }
+  if (selectValue == "75-100" && income > 75,000 && income <= 100,000) {
+    return true;
+  }
+  if (selectValue == "100+" && income > 100,000) {
+    return true;
+  }
+  return false;
+}
+
+function filterAge(age) {
+  selectValue = $("#filter-age").val();
+  if (selectValue == "none") {
+    return true;
+  }
+  if (selectValue == "18-24" && age >= 18 && age <= 24) {
+    return true;
+  }
+  if (selectValue == "25-34" && age >= 25 && age <= 34) {
+    return true;
+  }
+  if (selectValue == "35-44" && age >= 35 && age <= 44) {
+    return true;
+  }
+  if (selectValue == "45-54" && age >= 45 && age <= 54) {
+    return true;
+  }
+  if (selectValue == "55-64" && age >= 55 && age <= 64) {
+    return true;
+  }
+  return false;
+}
+
+function peopleFilter(d) {
+  income = +account_data[d['customer']]['income']
+  age = +account_data[d['customer']]['age']
+  var result = (filterIncome(income) && filterAge(age));
+  return result;
+}
+
+function data_key(d) {
+  return d['customer'] + d['desc'] + d['date_time']
 }
 
 D3Overlay.prototype = new google.maps.OverlayView();
@@ -52,22 +104,26 @@ function D3Overlay() {
 
   D3Overlay.prototype.draw = function() {
       if (this._dateString == null || !(this._dateString in transaction_data)) {
+        d3.selectAll('circle').remove();
         return;
       }
 
       padding = 10;
 
       var transaction_join = this._div.selectAll("svg")
-          .data(transaction_data[this._dateString])
+          .data(transaction_data[this._dateString].filter(peopleFilter))
           .each(transform) // update existing markers
 
-      old_transactions = transaction_join.exit().remove();
+          padding = 10;
+          
+          var tooltip = this._tooltip;
 
-      new_transactions = transaction_join.enter().append("svg")
+          
+      new_transactions = transaction_join.enter()
+          .append("svg")
           .each(transform)
-          .attr("class", "transaction")
-
-      var tooltip = this._tooltip;
+          
+      old_transactions = transaction_join.exit().remove();
 
       var new_data = new_transactions.data();
 
@@ -79,7 +135,7 @@ function D3Overlay() {
           tooltip.transition()
             .duration(200)
             .style("opacity", .9);
-          var toolTipHTML = genToolTipHTML(new_data[i]);
+          var toolTipHTML = genToolTipHTML(d);
           tooltip.html(toolTipHTML)
             .style("left", (d3.event.pageX + 5) + "px")
             .style("top", (d3.event.pageY - 28) + "px");
@@ -88,7 +144,7 @@ function D3Overlay() {
             tooltip.transition()
               .duration(200)
               .style("opacity", 0);
-          });
+          });  
 
   }
 
@@ -115,7 +171,7 @@ var slider;
 
 function updateSlider() {
   moment = sliderToMoment(slider.val());
-  $("#counter").text(moment.format("YYYY-MM-DD HH:00"));
+  $("#counter").text(moment.format("dddd, YYYY-MM-DD HH:00"));
   dateString = moment.format("YYYY-MM-DDTHH");
   overlay._dateString = dateString;
   overlay.draw();
@@ -131,6 +187,17 @@ $(window).on("load", function() {
     value: 0
   });
   slider.on("input", function() {updateSlider()});
+
+  $("#myRange").bind('mousewheel DOMMouseScroll', function(event){
+    if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+        $("#myRange").val(+$("#myRange").val() + 3600000);
+        updateSlider();
+    }
+    else {
+        $("#myRange").val(+$("#myRange").val() - 3600000);
+        updateSlider();
+    }
+  });
   
   //load in the transaction data
   for (var i = 3; i < 11; i++) {
@@ -156,9 +223,16 @@ $(window).on("load", function() {
   overlay = new D3Overlay();
 
   //redraw after some events so the dots don't get out of sync
-  map.addListener('drag', function() {overlay.draw()});
-  map.addListener('zoom_changed', function() {overlay.draw()});
-  map.addListener('bounds_changed', function() {overlay.draw()});
+  map.addListener('drag', function() {updateSlider()});
+  map.addListener('zoom_changed', function() {updateSlider()});
+  map.addListener('bounds_changed', function() {updateSlider()});
+  map.addListener('tiles_loaded', function() {updateSlider()});
+  map.addListener('idle', function() {updateSlider()});
+
+  
+  //force a redraw when the boxes change
+  $("#filter-age").change(function() {updateSlider()});
+  $("#filter-income").change(function() {updateSlider()});
 
   updateSlider();
 });

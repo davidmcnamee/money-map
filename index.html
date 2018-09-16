@@ -5,8 +5,30 @@
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet"> 
   </head>
   <body>
+    <div class="sort-container">
+      <h1>Filter by age:</h1>
+      <select id="filter-age">
+        <option value="none">None</option>
+        <option value="18-24">18 – 24</option>
+        <option value="25-34">25 – 34</option>
+        <option value="35-44">35 – 44</option>   
+        <option value="45-54">45 – 54</option> 
+        <option value="55-64">55 – 64</option>    
+        <option value="65+">65+</option>    
+      </select>
+      <h1>Filter by income:</h1>
+      <select id="filter-income">
+          <option value="none">None</option>
+          <option value="0-25">$0 - $25,000</option>
+          <option value="25-50">$25,001 - $50,000</option>
+          <option value="50-75">$50,001 - $75,000</option>   
+          <option value="75-100">$75,001 - $100,000</option> 
+          <option value="100+">$100,000+</option>     
+        </select>
+    </div>
     <div id="map"></div>
     <input type="range" min="0" max="100" value="0" class="slider" id="myRange">
     <p id="counter"></p>
