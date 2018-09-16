@@ -3,6 +3,11 @@ var account_data = {};
 var map;
 var overlay;
 
+$("#myRange").on('scroll', function(){
+  console.log("scrolling");
+   $("#myRange").val($("#myRange").value + 3600000);
+});
+
 function transform(d) {
   d = new google.maps.LatLng(d.lat_long[0], d.lat_long[1]);
   d = overlay.getProjection().fromLatLngToDivPixel(d);
@@ -49,7 +54,7 @@ function D3Overlay() {
       if (this._dateString == null || !(this._dateString in transaction_data)) {
         return;
       }
-      
+
       padding = 10;
 
       var transaction_join = this._div.selectAll("svg")
@@ -84,7 +89,7 @@ function D3Overlay() {
               .duration(200)
               .style("opacity", 0);
           });
-        
+
   }
 
   D3Overlay.prototype.onRemove = function() {
@@ -157,4 +162,3 @@ $(window).on("load", function() {
 
   updateSlider();
 });
-
