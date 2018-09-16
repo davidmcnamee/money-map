@@ -70,8 +70,8 @@ for file_name in cust_files:
                 account.surname = person['surname']
                 account.first_name = person['givenName']
                 account.age = person['age']
-                account.income = customer_json['citizen']['totalIncome']
-                account.occupation = person['primaryOccupation']
+                account.income = customer_json['citizen'].get('totalIncome')
+                account.occupation = person.get('primaryOccupation')
                 
 
 with open('data/td_accounts.json', 'w') as accounts_file:
