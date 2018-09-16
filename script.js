@@ -8,16 +8,21 @@ function transform(d) {
   d = overlay.getProjection().fromLatLngToDivPixel(d);
   return d3.select(this)
       .style("left", (d.x - padding) + "px")
-      .style("top", (d.y - padding) + "px");
+      .style("top", (d.y - padding) + "px")
 }
 
-function createTooltip(d, i) {
-  this.tip = new Tooltip(this, {
-    closeOnClickOutside: true,
-    trigger: "manual"
-  })
-  this.tip.textContent = "HAIL SATAN";
-  this.tip.updateTitleContent("HAIL SATAN");
+function genToolTipHTML(d) {
+  cust = account_data[d['customer']];
+  var template = `<div class="transact-tooltip">
+    <img class="face-img" src="generic-face.png">
+    <p class="tooltip-info">${cust['first_name']} ${cust['surname']}</p>
+    <p class="tooltip-info">Age: ${cust['age']}</p>
+    <p class="tooltip-info">Income: ONE MILLION DOLLARS</p>
+    <p class="tooltip-info">Merchant: ${d['merch_name']}</p>
+    <p class="tooltip-info">Amount: \$${d['amount']}</p>
+  </div>`
+
+  return template;
 }
 
 D3Overlay.prototype = new google.maps.OverlayView();
@@ -57,24 +62,24 @@ function D3Overlay() {
           .each(transform)
           .attr("class", "transaction")
 
-      var div = $(".transact-popover");
-
       var tooltip = this._tooltip;
 
-      // Add a circle.
+      var new_data = new_transactions.data();
+
       new_transactions.append("circle")
         .attr("r", 7)
         .attr("cx", padding)
         .attr("cy", padding)
-        .on("mouseover", function(d) {
+        .on("mouseover", function(d, i) {
           tooltip.transition()
             .duration(200)
             .style("opacity", .9);
-          tooltip.html("fisherman")
+          var toolTipHTML = genToolTipHTML(new_data[i]);
+          tooltip.html(toolTipHTML)
             .style("left", (d3.event.pageX + 5) + "px")
             .style("top", (d3.event.pageY - 28) + "px");
       	  })
-          .on("mouseout", function(d) {
+          .on("mouseout", function(d, i) {
             tooltip.transition()
               .duration(200)
               .style("opacity", 0);
