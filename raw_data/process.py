@@ -70,6 +70,9 @@ for file_name in cust_files:
                 account.surname = person['surname']
                 account.first_name = person['givenName']
                 account.age = person['age']
+                account.income = customer_json['citizen']['totalIncome']
+                account.occupation = person['primaryOccupation']
+                
 
 with open('data/td_accounts.json', 'w') as accounts_file:
     json.dump(accounts, accounts_file, cls=CustomJSONEncoder)
