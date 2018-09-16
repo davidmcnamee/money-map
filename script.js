@@ -30,19 +30,19 @@ function filterIncome(income) {
   if (selectValue == "none") {
     return true;
   }
-  if (selectValue == "0-25" && income >= 0 && income <= 25,000) {
+  if (selectValue == "0-25" && income >= 0 && income <= 25000) {
     return true;
   }
-  if (selectValue == "25-50" && income > 25,000 && income <= 50,000) {
+  if (selectValue == "25-50" && income > 25000 && income <= 50000) {
     return true;
   }
-  if (selectValue == "50-75" && income > 50,000 && income <= 75,000) {
+  if (selectValue == "50-75" && income > 50000 && income <= 75000) {
     return true;
   }
-  if (selectValue == "75-100" && income > 75,000 && income <= 100,000) {
+  if (selectValue == "75-100" && income > 75000 && income <= 100000) {
     return true;
   }
-  if (selectValue == "100+" && income > 100,000) {
+  if (selectValue == "100+" && income > 100000) {
     return true;
   }
   return false;
@@ -103,52 +103,74 @@ function D3Overlay() {
   }
 
   D3Overlay.prototype.draw = function() {
-      if (this._dateString == null || !(this._dateString in transaction_data)) {
-        d3.selectAll('circle').remove();
-        return;
-      }
+      this.d3_update(false);
+  }
 
-      padding = 10;
+  this.d3_update = function(animate) {
+    if (this._dateString == null || !(this._dateString in transaction_data)) {
+      d3.selectAll('circle').remove();
+      return;
+    }
 
-      var transaction_join = this._div.selectAll("svg")
-          .data(transaction_data[this._dateString].filter(peopleFilter), peopleFilter)
-          .each(transform) // update existing markers
+    padding = 10;
 
-          padding = 10;
-          
-          var tooltip = this._tooltip;
+    var transaction_join = this._div.selectAll("svg")
+        .data(transaction_data[this._dateString].filter(peopleFilter), peopleFilter)
+        .each(transform) // update existing markers
+
+        padding = 10;
+        
+        var tooltip = this._tooltip;
 
 
-          
-      new_transactions = transaction_join.enter()
-          .append("svg")
-          .each(transform)
-          
+        
+    new_transactions = transaction_join.enter()
+        .append("svg")
+        .each(transform)
+    
+    if (animate) {
       old_transactions = transaction_join.exit()
         .transition()
         .duration(500)
         .style('opacity', '0')
         .remove();
+    }
+    else {
+      old_transactions = transaction_join.exit().remove();
+    }
 
-      new_transactions.append("circle")
-        .attr("r", 7)
-        .attr("cx", padding)
-        .attr("cy", padding)
-        .on("mouseover", function(d, i) {
+    new_transactions.append("circle")
+      .attr("r", 7)
+      .attr("cx", padding)
+      .attr("cy", padding)
+      .on("mouseover", function(d, i) {
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9);
+        var toolTipHTML = genToolTipHTML(d);
+        tooltip.html(toolTipHTML)
+          .style("left", (d3.event.pageX + 5) + "px")
+          .style("top", (d3.event.pageY - 28) + "px");
+        })
+        .on("mouseout", function(d, i) {
           tooltip.transition()
             .duration(200)
-            .style("opacity", .9);
-          var toolTipHTML = genToolTipHTML(d);
-          tooltip.html(toolTipHTML)
-            .style("left", (d3.event.pageX + 5) + "px")
-            .style("top", (d3.event.pageY - 28) + "px");
-      	  })
-          .on("mouseout", function(d, i) {
-            tooltip.transition()
-              .duration(200)
-              .style("opacity", 0);
-          });  
-
+            .style("opacity", 0);
+        }); 
+        
+      if (animate) {
+        new_transactions.append("circle")
+          .attr("r", "7")
+          .attr("cx", padding)
+          .attr("cy", padding)
+          .attr("class", "ping")
+          .style("opacity", "0.7")
+          .transition()
+          .duration(750)
+          .style("opacity", "0")
+          .attr("r", "20")
+          .remove();
+      }
   }
 
   D3Overlay.prototype.onRemove = function() {
@@ -177,7 +199,7 @@ function updateSlider() {
   $("#counter").text(moment.format("dddd, YYYY-MM-DD HH:00"));
   dateString = moment.format("YYYY-MM-DDTHH");
   overlay._dateString = dateString;
-  overlay.draw();
+  overlay.d3_update(true);
 }
 
 $(window).on("load", function() {

@@ -42,6 +42,12 @@ h1 {
     z-index: 999;
   }
 
+  .ping {
+      fill: none;
+      stroke: #007001;
+      stroke-width: 1.5px;
+  }
+
 
 .tooltip {
     position: absolute;
