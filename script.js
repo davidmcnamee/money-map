@@ -131,7 +131,7 @@ function D3Overlay() {
     if (animate) {
       old_transactions = transaction_join.exit()
         .transition()
-        .duration(500)
+        .duration(10)
         .style('opacity', '0')
         .remove();
     }
@@ -256,8 +256,8 @@ $(window).on("load", function() {
 
   
   //force a redraw when the boxes change
-  $("#filter-age").change(function() {updateSlider()});
-  $("#filter-income").change(function() {updateSlider()});
+  $("#filter-age").change(function() {overlay.d3_update(true)});
+  $("#filter-income").change(function() {overlay.d3_update(true)});
 
   updateSlider();
 });
