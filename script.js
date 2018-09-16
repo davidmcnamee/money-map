@@ -17,7 +17,7 @@ function transform(d) {
 }
 
 function genToolTipHTML(d) {
-  cust = account_data[d['customer']];
+  var cust = account_data[d['customer']];
   var template = `<div class="transact-tooltip">
     <img class="face-img" src="generic-face.png">
     <p class="tooltip-info">${cust['first_name']} ${cust['surname']}</p>
