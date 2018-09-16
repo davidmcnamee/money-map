@@ -1,4 +1,5 @@
 var transaction_data = {};
+var account_data = {};
 var map;
 var overlay;
 
@@ -112,18 +113,16 @@ function updateSlider() {
 
 $(window).on("load", function() {
   
+  //init the slider
   slider = $("#myRange");
   slider.attr({
     min: 0,
     max: offset,
     value: 0
   });
-
   slider.on("input", function() {updateSlider()});
   
-  
-  
-
+  //load in the transaction data
   for (var i = 3; i < 11; i++) {
     monthString = i;
     if (i < 10) {
@@ -133,6 +132,11 @@ $(window).on("load", function() {
       $.extend(transaction_data, data);
     });
   }
+
+  //load in account data
+  $.getJSON('data/td_accounts.json', function(data) {
+    $.extend(account_data, data);
+  });
  
   map = new google.maps.Map(d3.select("#map").node(), {
     center: {lat: 43.658419, lng: -79.38454795},
@@ -144,6 +148,7 @@ $(window).on("load", function() {
   //redraw after some events so the dots don't get out of sync
   map.addListener('drag', function() {overlay.draw()});
   map.addListener('zoom_changed', function() {overlay.draw()});
+  map.addListener('bounds_changed', function() {overlay.draw()});
 
   updateSlider();
 });
