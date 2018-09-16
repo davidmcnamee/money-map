@@ -111,21 +111,24 @@ function D3Overlay() {
       padding = 10;
 
       var transaction_join = this._div.selectAll("svg")
-          .data(transaction_data[this._dateString].filter(peopleFilter))
+          .data(transaction_data[this._dateString].filter(peopleFilter), peopleFilter)
           .each(transform) // update existing markers
 
           padding = 10;
           
           var tooltip = this._tooltip;
 
+
           
       new_transactions = transaction_join.enter()
           .append("svg")
           .each(transform)
           
-      old_transactions = transaction_join.exit().remove();
-
-      var new_data = new_transactions.data();
+      old_transactions = transaction_join.exit()
+        .transition()
+        .duration(500)
+        .style('opacity', '0')
+        .remove();
 
       new_transactions.append("circle")
         .attr("r", 7)
